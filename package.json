@@ -1,6 +1,6 @@
 {
   "name": "@backplane-software/backplane-oci",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Backplane OCI Module",
   "main": "index.js",
   "scripts": {
