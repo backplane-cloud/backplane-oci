@@ -1,0 +1,26 @@
+{
+  "name": "@backplane-software/backplane-oci",
+  "version": "0.0.0",
+  "description": "Backplane OCI Module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/backplane-cloud/backplane-oci.git"
+  },
+  "keywords": [
+    "backplane",
+    "oci"
+  ],
+  "author": "lewis@backplane.cloud",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/backplane-cloud/backplane-oci/issues"
+  },
+  "homepage": "https://github.com/backplane-cloud/backplane-oci#readme",
+  "dependencies": {
+    "oci-sdk": "^2.89.1"
+  }
+}
