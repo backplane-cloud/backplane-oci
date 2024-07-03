@@ -1,8 +1,8 @@
 // const common = require("oci-common");
 // const identity = require("oci-identity");
 
-import common from "oci-common";
-import identity from "oci-identity";
+import * as common from "oci-common";
+import * as identity from "oci-identity";
 
 async function createOCIAccount(
   config,
