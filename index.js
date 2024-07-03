@@ -1,10 +1,10 @@
-// import asyncHandler from "express-async-handler";
-// import OCI from "oci-sdk";
+// const common = require("oci-common");
+// const identity = require("oci-identity");
 
-const common = require("oci-common");
-const identity = require("oci-identity");
+import common from "oci-common";
+import identity from "oci-identity";
 
-async function createCompartment(
+async function createOCIAccount(
   config,
   compartmentName,
   compartmentDescription
@@ -50,65 +50,60 @@ async function createCompartment(
   }
 }
 
-async function createOCIAccount(
-  accessKeyId,
-  secretAccessKey,
-  accountName,
-  emailAddress
-) {
-  try {
-    // Set up OCI credentials
-    const credentials = new OCI.Credentials({
-      accessKeyId: accessKeyId,
-      secretAccessKey: secretAccessKey,
-    });
+// async function createOCIAccount(
+//   accessKeyId,
+//   secretAccessKey,
+//   accountName,
+//   emailAddress
+// ) {
+//   try {
+//     // Set up OCI credentials
+//     const credentials = new OCI.Credentials({
+//       accessKeyId: accessKeyId,
+//       secretAccessKey: secretAccessKey,
+//     });
 
-    // Set a default region in the global OCI configuration
-    OCI.config.update({ region: "us-east-1" });
+//     // Set a default region in the global OCI configuration
+//     OCI.config.update({ region: "us-east-1" });
 
-    // Set up OCI service objects
-    const organizations = new OCI.Organizations({
-      credentials: credentials,
-    });
+//     // Set up OCI service objects
+//     const organizations = new OCI.Organizations({
+//       credentials: credentials,
+//     });
 
-    // Create OCI account
-    const createAccountParams = {
-      AccountName: accountName,
-      Email: emailAddress,
-      // RoleName: "OrganizationAccountAccessRole", // Optional: specify a custom IAM role for the account
-    };
-    const createAccountResponse = await organizations
-      .createAccount(createAccountParams)
-      .promise();
-    console.log("OCI account created successfully:", createAccountResponse);
-    return createAccountResponse.CreateAccountStatus.AccountName;
-  } catch (err) {
-    console.error("Error creating OCI account:", err);
-    throw err;
-  }
-}
+//     // Create OCI account
+//     const createAccountParams = {
+//       AccountName: accountName,
+//       Email: emailAddress,
+//       // RoleName: "OrganizationAccountAccessRole", // Optional: specify a custom IAM role for the account
+//     };
+//     const createAccountResponse = await organizations
+//       .createAccount(createAccountParams)
+//       .promise();
+//     console.log("OCI account created successfully:", createAccountResponse);
+//     return createAccountResponse.CreateAccountStatus.AccountName;
+//   } catch (err) {
+//     console.error("Error creating OCI account:", err);
+//     throw err;
+//   }
+// }
 
-async function createOCIEnv({
-  environs,
-  orgCode,
-  appCode,
-  accessKeyId,
-  secretAccessKey,
-  emailAddress,
-}) {
+async function createOCIEnv({ config, environs, orgCode, appCode }) {
   try {
     let environments = [];
 
     await Promise.all(
       environs.map(async (env) => {
-        let accountName = `bp-${orgCode.split("-")[0]}-${
+        let compartmentName = `bp-${orgCode.split("-")[0]}-${
           appCode.split("-")[0]
         }-${env}`;
+
+        let compartmentDescription = `Compartment for ${appCode}`;
+
         const accountId = await createOCIAccount(
-          accessKeyId,
-          secretAccessKey,
-          accountName,
-          emailAddress
+          config,
+          compartmentName,
+          compartmentDescription
         );
 
         environments.push(accountId);
