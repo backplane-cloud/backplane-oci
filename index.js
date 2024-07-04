@@ -1,5 +1,6 @@
 // const common = require("oci-common");
 // const identity = require("oci-identity");
+import asyncHandler from "express-async-handler";
 
 import * as common from "oci-common";
 import * as identity from "oci-identity";
@@ -9,32 +10,62 @@ async function createOCIAccount(
   compartmentName,
   compartmentDescription
 ) {
+  //debug
+
+  console.log("Creating Compartment", compartmentName, compartmentDescription);
+
   // Create a provider using parameterized credentials
   const provider = new common.SimpleAuthenticationDetailsProvider(
     config.tenancyId,
     config.userId,
     config.fingerprint,
     config.privateKey,
-    config.passphrase
+    config.passphrase,
+    config.region
   );
 
-  // Create an IdentityClient
-  const identityClient = new identity.IdentityClient({
-    authenticationDetailsProvider: provider,
-  });
-
   try {
-    // Get the current user's tenancy
-    const tenancyRequest = { tenancyId: config.tenancyId };
-    const tenancyResponse = await identityClient.getTenancy(tenancyRequest);
-    const tenancyId = tenancyResponse.tenancy.id;
+    // Debug log for configuration
+    console.log("Config:", config);
+
+    // Create a provider using parameterized credentials
+    const provider = new common.SimpleAuthenticationDetailsProvider(
+      config.tenancyId,
+      config.userId,
+      config.fingerprint,
+      config.privateKey,
+      config.passphrase
+    );
+
+    // Debug log for provider
+    console.log("Provider created successfully.");
+
+    // Ensure the region is correctly set using the Region enum
+    const region = common.Region.fromRegionId(config.region);
+
+    // Debug log for region
+    console.log("Region:", region);
+
+    // Create an IdentityClient
+    const identityClient = new identity.IdentityClient({
+      authenticationDetailsProvider: provider,
+    });
+
+    // Set the region for the client
+    identityClient.region = region;
+
+    // Debug log for client setup
+    console.log("IdentityClient created successfully and region set.");
 
     // Define the new compartment details
     const createCompartmentDetails = {
-      compartmentId: tenancyId,
+      compartmentId: config.tenancyId,
       name: compartmentName,
       description: compartmentDescription,
     };
+
+    // Debug log for compartment details
+    console.log("Compartment details:", createCompartmentDetails);
 
     // Create the new compartment
     const createCompartmentRequest = {
@@ -45,8 +76,21 @@ async function createOCIAccount(
     );
 
     console.log("Compartment created successfully:", response.compartment);
+    return response;
   } catch (err) {
-    console.error("Error creating compartment:", err);
+    if (err.response) {
+      // The request was made and the server responded with a status code that falls out of the range of 2xx
+      console.error("Response error:", err.response.data);
+      console.error("Status:", err.response.status);
+      console.error("Headers:", err.response.headers);
+    } else if (err.request) {
+      // The request was made but no response was received
+      console.error("No response received:", err.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error("Error in request setup:", err.message);
+    }
+    console.error("Config:", err.config);
   }
 }
 
@@ -90,6 +134,13 @@ async function createOCIAccount(
 
 async function createOCIEnv({ config, environs, orgCode, appCode }) {
   try {
+    // console.log("entered OCI createOCIenv");
+    // console.log("config", config);
+    // console.log("environs", environs);
+    // console.log("orgcode", orgCode);
+    // console.log("appcode", appCode);
+
+    // return;
     let environments = [];
 
     await Promise.all(
