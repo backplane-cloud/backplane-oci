@@ -5,7 +5,7 @@ This is a library module for OCI which exports the functions:
 - getOCICost
 - getOCIAccess
 - getOCIPolicy
-- createGCPEnvironments
+- createOCIEnv
 
 It is used by `@backplane-software/backplane-api` which hosts a RESTful API server that provides a Product Catalog for various Apps residing in different cloud platforms.
 
